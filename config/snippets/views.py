@@ -30,7 +30,7 @@ status codes
 
 
 @api_view(['GET', 'POST'])
-def snippet_list(request):
+def snippet_list(request, format=None):
     # Get 은 Status code가 response에 필요 없나 보다.
     if request.method=="GET":
         snippets = Snippet.objects.all()
@@ -45,8 +45,9 @@ def snippet_list(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['GET', 'PUT', 'DELETE'])
-def snippet_detail(request, pk):
+def snippet_detail(request, pk, format=None):
     try:
         snippet = Snippet.objects.get(pk=pk)
     except Snippet.DoesNotExist:
