@@ -28,12 +28,19 @@ from django.contrib.auth.models import User
 
 #ModelSerializer 사용하면 자동으로 만들어줌
 class SnippetSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+    
     class Meta:
         model = Snippet
-        fields = ['id', 'title', 'code', 'linenos', 'language', 'style']
+
+        fields = ['id', 'title', 'code', 'linenos', 'language', 'style', 'owner']
 
 
 class UserSerializer(serializers.ModelSerializer):
+    
+    # Snippets 는 User모델과 reverse 관계이므로 자동으로 include 되지 않음. 
+    # Snippets 에서는 Owner이 있는데, Owner에는 Snippet이 꼭 생길지 않음.
+
     snippets = serializers.PrimaryKeyRelatedField(many=True, queryset=Snippet.objects.all())
 
     class Meta:
