@@ -2,6 +2,9 @@ from rest_framework import serializers
 from snippets.models import Snippet, LANGUAGE_CHOICES, STYLE_CHOICES
 from django.contrib.auth.models import User
 
+
+
+
 #TODO Serializers.py 에는 항상 create와 update 메소드가 있어야 한다.
 # class SnippetSerializer(serializers.Serializer):
 #     id = serializers.IntegerField(read_only=True)
@@ -27,23 +30,26 @@ from django.contrib.auth.models import User
 
 
 #ModelSerializer 사용하면 자동으로 만들어줌
-class SnippetSerializer(serializers.ModelSerializer):
+class SnippetSerializer(serializers.HyperlinkedModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
-    
+    highlight = serializers.HyperlinkedIdentityField(view_name="snippet-highlight", format='html')
+
     class Meta:
         model = Snippet
 
-        fields = ['id', 'title', 'code', 'linenos', 'language', 'style', 'owner']
+        fields = [
+            'url', 'id', 'highlight', 'owner',
+            'title', 'code', 'linenos', 'language', 'style'
+        ]
 
-
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.HyperlinkedModelSerializer):
     
     # Snippets 는 User모델과 reverse 관계이므로 자동으로 include 되지 않음. 
     # Snippets 에서는 Owner이 있는데, Owner에는 Snippet이 꼭 생길지 않음.
 
-    snippets = serializers.PrimaryKeyRelatedField(many=True, queryset=Snippet.objects.all())
+    snippets = serializers.HyperlinkedRelatedField(many=True, view_name="snippet-detail", read_only=True)
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'snippets']
+        fields = ['url', 'id', 'username', 'snippets']
 
